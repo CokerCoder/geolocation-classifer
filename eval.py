@@ -170,7 +170,7 @@ for sent in tqdm(test_tokens):  # for each tweet
     test_vectors.append(sent_vec)
 
 for classifier in classifiers:
-    print(f'Fitting {type(clf).__name__} classifier...')
+    print(f'Fitting {type(classifier).__name__} classifier...')
     clf = classifier.fit(train_vectors, train_labels)
     predicted_labels = clf.predict(dev_vectors)
     f1 = metrics.f1_score(
@@ -219,7 +219,7 @@ for sent in tqdm(test_tokens):  # for each tweet
 dev_vectors = preprocessing.normalize(dev_vectors, norm='l1')
 
 for classifier in classifiers:
-    print(f'Fitting {type(clf).__name__} classifier...')
+    print(f'Fitting {type(classifier).__name__} classifier...')
     clf = classifier.fit(train_vectors, train_labels)
     predicted_labels = clf.predict(dev_vectors)
     f1 = metrics.f1_score(
@@ -269,7 +269,7 @@ for sent in tqdm(test_tokens):  # for each tweet
 dev_vectors = preprocessing.normalize(dev_vectors, norm='l2')
 
 for classifier in classifiers:
-    print(f'Fitting {type(clf).__name__} classifier...')
+    print(f'Fitting {type(classifier).__name__} classifier...')
     clf = classifier.fit(train_vectors, train_labels)
     predicted_labels = clf.predict(dev_vectors)
     f1 = metrics.f1_score(
