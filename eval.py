@@ -28,8 +28,6 @@ Preprocess a string.
 :return
     cleaned text
 '''
-
-
 def utils_preprocess_text(text, flg_stemm=False, flg_lemm=True, lst_stopwords=None):
 
     # clean (convert to lowercase and remove punctuations and characters and then strip)
@@ -77,6 +75,8 @@ nltk.download('punkt')
 nltk.download('wordnet')
 lst_stopwords = nltk.corpus.stopwords.words("english")
 
+print("==========PROCESSING DATA==========")
+
 train_tweetContent = train_tweetContent["tweet"].apply(lambda x:
                                                        utils_preprocess_text(x, flg_stemm=False, flg_lemm=False,
                                                                              lst_stopwords=lst_stopwords))
@@ -106,7 +106,7 @@ for tweet in test_tweetContent:
 all_tokens = np.concatenate((train_tokens, dev_tokens, test_tokens))
 
 cores = multiprocessing.cpu_count()
-
+print("==========TRAINING MODEL==========")
 w2v_model = gensim.models.word2vec.Word2Vec(
     all_tokens, vector_size=300, window=8, min_count=1, sg=1, epochs=30, workers=cores)
 w2v_words = w2v_model.wv.index_to_key
@@ -170,6 +170,7 @@ for sent in tqdm(test_tokens):  # for each tweet
     test_vectors.append(sent_vec)
 
 for classifier in classifiers:
+    print(f'Fitting {type(clf).__name__} classifier...')
     clf = classifier.fit(train_vectors, train_labels)
     predicted_labels = clf.predict(dev_vectors)
     f1 = metrics.f1_score(
@@ -218,6 +219,7 @@ for sent in tqdm(test_tokens):  # for each tweet
 dev_vectors = preprocessing.normalize(dev_vectors, norm='l1')
 
 for classifier in classifiers:
+    print(f'Fitting {type(clf).__name__} classifier...')
     clf = classifier.fit(train_vectors, train_labels)
     predicted_labels = clf.predict(dev_vectors)
     f1 = metrics.f1_score(
@@ -267,8 +269,19 @@ for sent in tqdm(test_tokens):  # for each tweet
 dev_vectors = preprocessing.normalize(dev_vectors, norm='l2')
 
 for classifier in classifiers:
+    print(f'Fitting {type(clf).__name__} classifier...')
     clf = classifier.fit(train_vectors, train_labels)
     predicted_labels = clf.predict(dev_vectors)
     f1 = metrics.f1_score(
         dev_labels, predicted_labels, average='micro')
     print(f'{type(clf).__name__} F1： {f1:.4f}')
+
+# write to csv
+clf = LinearSVC(C=0.12, random_state=42).fit(train_vectors, train_labels)
+predicted_labels = clf.predict(test_vectors)
+df = pd.DataFrame({"region": predicted_labels})
+df.index.name = "id"
+df.index += 1
+df.to_csv('result.csv', index=['id', 'region'])
+
+print("==========DONE==========")
